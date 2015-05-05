@@ -1,0 +1,27 @@
+<?php
+function prettyPrint($a)
+{
+    echo "<pre>";
+    print_r($a);
+    echo "</pre>";
+}
+
+function prettyPrintJson($a)
+{
+    echo "<pre>";
+    $pretty = json_encode($a, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    print_r($pretty);
+    echo "</pre>";
+}
+
+?>
+
+<h2>Library: <?php echo $this->membership; ?></h2>
+    <input id="inputFilterSearch" name="search" class="text" type="search" placeholder="Filter...">
+    <button id="btnResetSearch" class="minibutton">&times;</button>
+<br>
+<div id="tree">
+
+
+</div>
+

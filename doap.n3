@@ -21,9 +21,7 @@
   owconfig:config [
     a owconfig:Config;
     owconfig:id "statements";
-    :hosts "172.18.113.206:9201";
-    :username "my_username";
-    :password "my_password";
+    :discoveryIndex "http://localhost/OntoWiki/Discovery/";
 ] ;
   doap:release :v1-0 .
 :v1-0 a doap:Version ;

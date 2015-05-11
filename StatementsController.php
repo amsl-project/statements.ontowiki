@@ -28,7 +28,7 @@ class StatementsController extends OntoWiki_Controller_Component
         $_owApp->getNavigation()->disableNavigation();
 
         $membership = $_owApp->getUser()->getIsMemberOf();
-        $this->view->membership = isset($membership) ? $membership : "The current user has no membership";
+        $this->view->membership = (isset($membership) && $membership !== "") ? $membership : "The current user has no membership";
 
     }
 
@@ -37,7 +37,8 @@ class StatementsController extends OntoWiki_Controller_Component
         $this->_helper->viewRenderer->setNoRender();
         $this->_helper->layout->disableLayout();
 
-        $articleIndex = new ArticleIndexHelper('http://localhost/OntoWiki/Discovery/');
+        $dicoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($dicoveryIndex);
         $models = $articleIndex->getMetadataSources();
 
         $this->_response->setBody(json_encode($models));
@@ -59,7 +60,7 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $membership = $_owApp->getUser()->getIsMemberOf();
 
-        $articleIndex = new ArticleIndexHelper('http://localhost/OntoWiki/Discovery/');
+        $articleIndex = new ArticleIndexHelper($this->_privateConfig->statements->discoveryIndex);
 
         $return = null;
         if(isset($membership)) {
@@ -85,7 +86,7 @@ class StatementsController extends OntoWiki_Controller_Component
         $membership = $_owApp->getUser()->getIsMemberOf();
 
         $return = null;
-        $articleIndex = new ArticleIndexHelper('http://localhost/OntoWiki/Discovery/');
+        $articleIndex = new ArticleIndexHelper($this->_privateConfig->statements->discoveryIndex);
         if(isset($membership)) {
             $return = $articleIndex->deleteStatement($collection, $membership);
         }

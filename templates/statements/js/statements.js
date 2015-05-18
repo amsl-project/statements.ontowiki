@@ -38,6 +38,8 @@ $(document).ready(function () {
             },
             // display a message after the tree has been initialized
             init: function (event, data) {
+                var node = $("#tree").fancytree("getRootNode");
+                node.sortChildren(null, false);
                 toastr.success('Collections successfully loaded.');
             }
         }).on("click", "span.fancytree-title", function (event) {
@@ -50,6 +52,7 @@ $(document).ready(function () {
                 );
             }
         });
+
 
         /**
          * reset search button behaviour

@@ -30,9 +30,9 @@ class ArticleIndexHelper
 
     public function getMetadataSources()
     {
-        $query = "SELECT ?source WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource>}";
-        $result = $this->_model->sparqlQuery($query);
-        return $this->buildCollectionArray($result);
+        $query = "SELECT ?source ?sourceID WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> . ?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID}";
+        $sources = $this->_model->sparqlQuery($query);
+        return $this->buildCollectionArray($sources);
     }
 
     private function buildCollectionArray($sources)
@@ -42,7 +42,7 @@ class ArticleIndexHelper
         $titleHelper = new OntoWiki_Model_TitleHelper();
 
         foreach ($sources as $source) {
-            $resultArray['title'] = $titleHelper->getTItle($source['source']);
+            $resultArray['title'] = $titleHelper->getTItle($source['source']) . " (sourceID:" . $source['sourceID'] . ")";
             $resultArray['hideCheckbox'] = true;
             $resultArray['folder'] = true;
             $resultArray['data'] = array("sourceUri" => $source['source']);

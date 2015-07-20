@@ -6,7 +6,7 @@ $(document).ready(function () {
     var pathname = window.location.pathname;
 
     // make sure we are in the right controller
-    if (pathname == "/OntoWiki/statements/collectiontolibrary") {
+    if (pathname.indexOf("/statements/collectiontolibrary") > -1) {
         toastr.info('Loading collections ....');
         $("#tree").fancytree({
             source: {

@@ -1,3 +1,11 @@
+/**
+ * This file is part of the {@link http://amsl.technology amsl} project.
+ *
+ * @author Sebastian Nuck
+ * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
+
 $(document).ready(function () {
     toastr.options = {
         "positionClass": "toast-bottom-right"
@@ -10,7 +18,7 @@ $(document).ready(function () {
         toastr.info('Loading collections ....');
         $("#tree").fancytree({
             source: {
-                url: urlBase + 'statements/metadatasources'
+                url: urlBase + 'statements/metadatasources' // get the metadata sources from the controller
             },
             activeVisible: false, // Make sure, active nodes are visible (expanded).
             checkbox: true, // Show checkboxes.
@@ -38,8 +46,6 @@ $(document).ready(function () {
             },
             // display a message after the tree has been initialized
             init: function (event, data) {
-                var node = $("#tree").fancytree("getRootNode");
-                node.sortChildren(null, false);
                 toastr.success('Collections successfully loaded.');
             }
         }).on("click", "span.fancytree-title", function (event) {
@@ -91,8 +97,6 @@ $(document).ready(function () {
 
         /**
          * Saves the changes made to a statment (writes/deletes the property)
-         * @param event
-         * @param data
          */
         var saveChanges = function (event, data) {
             // A node was activated: write the statement:

@@ -1,14 +1,13 @@
 <?php
 
 /**
- * Statments component controller.
+ * This file is part of the {@link http://amsl.technology amsl} project.
  *
- * @category   OntoWiki
- * @package    Extensions_Statements
- * @author     Sebastian Nuck
- * @copyright  Copyright (c) 2015, {@link http://ub.uni-leipzig.de UB Leipzig}
- * @license    http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ * @author Sebastian Nuck
+ * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
+
 class ArticleIndexHelper
 {
     private $_erfurt;
@@ -42,23 +41,33 @@ class ArticleIndexHelper
         $titleHelper = new OntoWiki_Model_TitleHelper();
 
         foreach ($sources as $source) {
-            $resultArray['title'] = $titleHelper->getTItle($source['source']) . " (sourceID:" . $source['sourceID'] . ")";
+            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']);
             $resultArray['hideCheckbox'] = true;
             $resultArray['folder'] = true;
+            $resultArray['sourceID'] = $source['sourceID'];
             $resultArray['data'] = array("sourceUri" => $source['source']);
             $collections = $this->queryMetadataCollections($source['source']);
             if (isset($collections)) {
                 foreach ($collections as $collection) {
                     $selection = isset($collection['usedBy']);
+                    $prohibited = isset($collection['usageProhibitedBy']);
                     $resultArray['children'][] = array(
                         "title" => isset($collection['label']) ? $collection['label'] : $collection['collection'],
                         "selected" => $selection,
+                        "hideCheckbox" => $prohibited,
                         "data" => array("collection" => $collection['collection']));
                 }
             }
             $return[] = $resultArray;
             $resultArray = array();
         }
+
+        // _naturally_ sort by source ID.
+        function sortBySourceID($a, $b) {
+            return strnatcmp(intval($a['sourceID']), $b['sourceID']);
+        }
+        usort($return, "sortBySourceID");
+
         return $return;
     }
 
@@ -71,56 +80,59 @@ class ArticleIndexHelper
         if ($membership) {
 
             $query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                    PREFIX amsl: <http://vocab.ub.uni-leipzig.de/amsl/>
-                    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX amsl: <http://vocab.ub.uni-leipzig.de/amsl/>
+            PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-                    SELECT ?collection ?usedBy ?label WHERE {
-                           ?collection a amsl:MetadataCollection .
-                           ?collection amsl:includedInMetadataSource <" . $metadataSource . "> .
-                           ?collection rdfs:label ?label
-                           OPTIONAL {
-                                ?collection amsl:metadataUsedByLibrary ?usedBy . FILTER (?usedBy = <" . $membership . ">)
-                           }
-                    }";
-            $result = $this->_model->sparqlQuery($query);
-            return $result;
-        }
-        return null;
+            // SELECT ?collection ?usedBy ?label ?usageProhibitedBy WHERE {
+                ?collection a amsl:MetadataCollection .
+                ?collection amsl:includedInMetadataSource <" . $metadataSource . "> .
+                ?collection rdfs:label ?label
+            OPTIONAL {
+                ?collection amsl:metadataUsedByLibrary ?usedBy . FILTER (?usedBy = <" . $membership . ">)
+            }
+            OPTIONAL {
+                ?collection amsl:metadataUsageProhibited ?usageProhibitedBy . FILTER (?usageProhibitedBy = <" . $membership . ">)
+            }
+        }";
+        $result = $this->_model->sparqlQuery($query);
+        return $result;
     }
+    return null;
+}
 
 
-    public function saveStatement($collection, $membership)
-    {
-            $this->_logger->debug('ArticleIndexHelper:saveStatement: ' . $collection . ' --> ' . $membership);
-            $result = $this->_store->addStatement(
-                $this->_modelUri,
-                $collection,
-                "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
-                array('value' => $membership, 'type' => 'uri'),
-                false);
-            $this->_logger->debug('ArticleIndexHelper:saveStatement:result: ' . $result);
+public function saveStatement($collection, $membership)
+{
+    $this->_logger->debug('ArticleIndexHelper:saveStatement: ' . $collection . ' --> ' . $membership);
+    $result = $this->_store->addStatement(
+        $this->_modelUri,
+        $collection,
+        "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
+        array('value' => $membership, 'type' => 'uri'),
+        false);
+    $this->_logger->debug('ArticleIndexHelper:saveStatement:result: ' . $result);
 
             // return resultId of added statement
-            return $result;
+    return $result;
 
-    }
+}
 
 
-    public function deleteStatement($collection, $membership)
-    {
-            $this->_logger->debug('ArticleIndexHelper:deleteStatement: ' . $collection . ' --> ' . $membership);
-            $return = $this->_store->deleteMatchingStatements(
-                $this->_modelUri,
-                $collection,
-                "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
-                array('value' => $membership, 'type' => 'uri'),
-                false);
-            $this->_logger->debug('ArticleIndexHelper:deleteStatement:$return: ' . $return);
+public function deleteStatement($collection, $membership)
+{
+    $this->_logger->debug('ArticleIndexHelper:deleteStatement: ' . $collection . ' --> ' . $membership);
+    $return = $this->_store->deleteMatchingStatements(
+        $this->_modelUri,
+        $collection,
+        "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
+        array('value' => $membership, 'type' => 'uri'),
+        false);
+    $this->_logger->debug('ArticleIndexHelper:deleteStatement:$return: ' . $return);
 
             // return number of deleted statements
-            return $return;
+    return $return;
 
-    }
+}
 
 }

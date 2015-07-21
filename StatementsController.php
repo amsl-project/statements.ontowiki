@@ -3,13 +3,18 @@
 require_once realpath(dirname(__FILE__)) . '/classes/ArticleIndexHelper.php';
 
 /**
+ * This file is part of the {@link http://amsl.technology amsl} project.
+ *
+ * @author Sebastian Nuck
+ * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
+
+/**
  * Statments component controller.
  *
  * @category   OntoWiki
  * @package    Extensions_Statements
- * @author     Sebastian Nuck
- * @copyright  Copyright (c) 2015, {@link http://ub.uni-leipzig.de UB Leipzig}
- * @license    http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 class StatementsController extends OntoWiki_Controller_Component
 {
@@ -32,6 +37,10 @@ class StatementsController extends OntoWiki_Controller_Component
 
     }
 
+    /**
+     * Retrieves the metadata sources from the virtuoso (is called via javascript).
+     * @return response
+     */
     public function metadatasourcesAction() {
         // tells the OntoWiki to not apply the template to this action
         $this->_helper->viewRenderer->setNoRender();
@@ -44,6 +53,9 @@ class StatementsController extends OntoWiki_Controller_Component
         $this->_response->setBody(json_encode($models));
     }
 
+    /**
+     * Saves one collection after the checkbox has been checked while it was unchecked before.
+     */
     public function savearticleindexstatementAction() {
         // tells the OntoWiki to not apply the template to this action
         $this->_helper->viewRenderer->setNoRender();
@@ -70,6 +82,9 @@ class StatementsController extends OntoWiki_Controller_Component
         $this->_response->setBody(json_encode($return));
     }
 
+    /**
+     * Saves one collection after the checkbox has been unchecked while it was checked before.
+     */
     public function deletearticleindexstatementAction() {
         // tells the OntoWiki to not apply the template to this action
         $this->_helper->viewRenderer->setNoRender();

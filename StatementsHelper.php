@@ -39,12 +39,16 @@ class StatementsHelper extends OntoWiki_Component_Helper
             $this->view = clone $viewRenderer->view;
             $this->view->clearVars();
         }
-        
-        if ($owApp->erfurt->isActionAllowed('Debug')) {
-            $extrasMenu = OntoWiki_Menu_Registry::getInstance()->getMenu('application')->getSubMenu('Extras');
-            $extrasMenu->setEntry('Select collections', $owApp->config->urlBase . 'statements/collectiontolibrary');
+
+        // The menu entry will be set if the given model (from config) is readable for the user
+        $discoveryGraphUri = $this->_privateConfig->statements->discoveryIndex;
+        if (Erfurt_Uri::check($discoveryGraphUri)  === true) {
+            if ($owApp->erfurt->getAc()->isModelAllowed('view', $discoveryGraphUri) === true) {
+                $extrasMenu = OntoWiki_Menu_Registry::getInstance()->getMenu('application')->getSubMenu('Extras');
+                $extrasMenu->setEntry('Select collections', $owApp->config->urlBase . 'statements/collectiontolibrary');
+            }
         }
-        
+
         $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/statements.js');
         $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/handlebars.js');
         $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/jquery.fancytree-all.min.js');

@@ -72,11 +72,19 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $membership = $_owApp->getUser()->getIsMemberOf();
 
-        $articleIndex = new ArticleIndexHelper($this->_privateConfig->statements->discoveryIndex);
+        $discoveryIndexUri = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndexUri);
 
         $return = null;
         if(isset($membership)) {
-            $return = $articleIndex->saveStatement($collection, $membership);
+            if ($_owApp->erfurt->getAc()->isModelAllowed('edit', $discoveryIndexUri) === true) {
+                $return = $articleIndex->saveStatement($collection, $membership);
+            } else {
+                $msg = 'StatementsController:deletestatementAction: not allowed to edit ';
+                $msg.=  $discoveryIndexUri . '. Statement not saved.';
+                $logger->debug($msg);
+                $return = false;
+            }
         }
 
         $this->_response->setBody(json_encode($return));
@@ -101,9 +109,17 @@ class StatementsController extends OntoWiki_Controller_Component
         $membership = $_owApp->getUser()->getIsMemberOf();
 
         $return = null;
-        $articleIndex = new ArticleIndexHelper($this->_privateConfig->statements->discoveryIndex);
+        $discoveryIndexUri = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndexUri);
         if(isset($membership)) {
-            $return = $articleIndex->deleteStatement($collection, $membership);
+            if ($_owApp->erfurt->getAc()->isModelAllowed('edit', $discoveryIndexUri) === true) {
+                $return = $articleIndex->deleteStatement($collection, $membership);
+            } else {
+                $msg = 'StatementsController:deletestatementAction: not allowed to edit ';
+                $msg.=  $discoveryIndexUri . '. Statement not deleted.';
+                $logger->debug($msg);
+                $return = false;
+            }
         }
 
         $this->_response->setBody(json_encode($return));

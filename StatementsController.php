@@ -28,12 +28,12 @@ class StatementsController extends OntoWiki_Controller_Component
         $_owApp = OntoWiki::getInstance();
         $logger = $_owApp->getCustomLogger('statements');
         $translate = $this->_owApp->translate;
-        $this->view->placeholder('main.window.title')->set($translate->_('Statements'));
+        $this->view->placeholder('main.window.title')->set($translate->_('Select Metadata Collections'));
         $this->addModuleContext('main.window.fulltextsearch.info');
         $_owApp->getNavigation()->disableNavigation();
 
         $membership = $_owApp->getUser()->getIsMemberOf();
-        $this->view->membership = (isset($membership) && $membership !== "") ? $membership : "The current user has no membership";
+        $this->view->membership = (isset($membership) && $membership !== "") ? $membership : $translate->_("The current user has no membership");
 
     }
 

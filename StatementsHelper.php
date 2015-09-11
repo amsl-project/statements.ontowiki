@@ -45,7 +45,7 @@ class StatementsHelper extends OntoWiki_Component_Helper
         if (Erfurt_Uri::check($discoveryGraphUri)  === true) {
             if ($owApp->erfurt->getAc()->isModelAllowed('view', $discoveryGraphUri) === true) {
                 $extrasMenu = OntoWiki_Menu_Registry::getInstance()->getMenu('application')->getSubMenu('Extras');
-                $extrasMenu->setEntry('Select collections', $owApp->config->urlBase . 'statements/collectiontolibrary');
+                $extrasMenu->setEntry('Select Metadata Collections', $owApp->config->urlBase . 'statements/collectiontolibrary');
             }
         }
 

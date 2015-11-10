@@ -51,10 +51,30 @@ class ArticleIndexHelper
                 foreach ($collections as $collection) {
                     $selection = isset($collection['usedBy']);
                     $prohibited = isset($collection['usageProhibitedBy']);
+                    $accessDenied = false;
+                    $disableCheckbox = false;
+                    if(isset($collection['isRestricted']) && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes'){
+                        $accessDenied = true;
+                        $disableCheckbox = true;
+                    }
+                    if($prohibited || $accessDenied){
+                        $disableCheckbox = true;
+                    }
+                    $permitted = false;
+                    if(isset($collection['permittedForLibrary']) && $collection['permittedForLibrary'] == 'http://lobid.org/organisation/DE-15'){
+                        $permitted = true;
+                    }
+
+                    $usage_note = '';
+                    if($accessDenied && $permitted){
+                        $usage_note = '</br><b> -> you need to contact your admin to select/deselect this collection</b>';
+                    }
                     $resultArray['children'][] = array(
-                        "title" => isset($collection['label']) ? $collection['label'] : $collection['collection'],
+                        "title" => isset($collection['label']) ? $collection['label'] . $usage_note : $collection['collection'] . $usage_note,
                         "selected" => $selection,
-                        "hideCheckbox" => $prohibited,
+                        "hideCheckbox" => $disableCheckbox,
+                        "accessDenied" => $accessDenied,
+                        "permitted" => $permitted,
                         "data" => array("collection" => $collection['collection']));
                 }
             }
@@ -84,7 +104,7 @@ class ArticleIndexHelper
             PREFIX amsl: <http://vocab.ub.uni-leipzig.de/amsl/>
             PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-            // SELECT ?collection ?usedBy ?label ?usageProhibitedBy WHERE {
+            // SELECT ?collection ?usedBy ?label ?isRestricted ?permittedForLibrary WHERE {
                 ?collection a amsl:MetadataCollection .
                 ?collection amsl:includedInMetadataSource <" . $metadataSource . "> .
                 ?collection rdfs:label ?label
@@ -92,7 +112,10 @@ class ArticleIndexHelper
                 ?collection amsl:metadataUsedByLibrary ?usedBy . FILTER (?usedBy = <" . $membership . ">)
             }
             OPTIONAL {
-                ?collection amsl:metadataUsageProhibited ?usageProhibitedBy . FILTER (?usageProhibitedBy = <" . $membership . ">)
+                ?collection amsl:metadataUsageRestricted ?isRestricted .
+            }
+            OPTIONAL {
+                ?collection amsl:metadataUsagePermittedForLibrary ?permittedForLibrary . FILTER (?permittedForLibrary = <" . $membership . ">)
             }
         }";
         $result = $this->_model->sparqlQuery($query);

@@ -21,7 +21,7 @@
   owconfig:config [
     a owconfig:Config;
     owconfig:id "statements";
-    :discoveryIndex "http://localhost/OntoWiki/Discovery/";
+    :discoveryIndex "http://amsl.technology/discovery/metadata-usage/";
 ] ;
   doap:release :v1-0 .
 :v1-0 a doap:Version ;

@@ -123,24 +123,4 @@ class StatementsController extends OntoWiki_Controller_Component
         }
         $this->_response->setHeader('HTTP/1.1 403 Forbidden');
     }
-
-    public function disabledselectediconAction(){
-        $im = file_get_contents('extensions/statements/images/selectedRestricted.png');
-        $this->_response->setBody($im);
-        $this->_response->setHeader('Content-Transfer-Encoding', 'binary');
-        $this->_response->setHeader('Content-Type', 'image/png');
-        $this->_response->setHeader('Content-Length', mb_strlen($im));
-        $this->_response->setHttpResponseCode(200);
-        imagedestroy($im);
-    }
-
-    public function disabledunselectediconAction(){
-        $im = file_get_contents('extensions/statements/images/deselectedRestricted.png');
-        $this->_response->setBody($im);
-        $this->_response->setHeader('Content-Transfer-Encoding', 'binary');
-        $this->_response->setHeader('Content-Type', 'image/png');
-        $this->_response->setHeader('Content-Length', mb_strlen($im));
-        $this->_response->setHttpResponseCode(200);
-        imagedestroy($im);
-    }
 }

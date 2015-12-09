@@ -61,9 +61,9 @@ $(document).ready(function () {
                             var name = leaf.title;
                             if (hideCheckbox == true) {
                                 if (selected == true) {
-                                    leaf.data.icon = urlBase + 'statements/disabledselectedicon';
+                                    leaf.data.icon = urlBase + 'extensions/statements/images/selectedRestricted.png';
                                 } else {
-                                    leaf.data.icon = urlBase + 'statements/disabledunselectedicon';
+                                    leaf.data.icon = urlBase + 'extensions/statements/images/deselectedRestricted.png';
                                 }
                             }else{
                                 leaf.data.icon = false;

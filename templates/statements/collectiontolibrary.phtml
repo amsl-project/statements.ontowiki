@@ -14,7 +14,15 @@ function prettyPrintJson($a)
     echo "</pre>";
 }
 
+$urlBase = OntoWiki::getInstance()->getUrlBase();
+
 ?>
+
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/statements/templates/statements/js/statements.js')?>"></script>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/statements/templates/statements/js/handlebars.js')?>"></script>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/statements/templates/statements/js/jquery.fancytree-all.min.js')?>"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/statements/templates/statements/css/statements.css')?>">
+<link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/statements/templates/statements/css/ui.fancytree.css')?>">
 
 <h2><?php echo $this->_('Library'); ?>: <?php echo $this->membership; ?></h2>
     <input id="inputFilterSearch" name="search" class="text" type="search" placeholder="Filter...">

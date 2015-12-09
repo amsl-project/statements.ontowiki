@@ -7,7 +7,6 @@
  * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
-
 class ArticleIndexHelper
 {
     private $_erfurt;
@@ -16,6 +15,7 @@ class ArticleIndexHelper
     private $_modelUri;
     private $_logger;
     private $_owApp;
+    private $_translate;
 
     function __construct($model)
     {
@@ -25,6 +25,7 @@ class ArticleIndexHelper
         $this->_model = $this->_store->getModel($model);
         $this->_owApp = OntoWiki::getInstance();
         $this->_logger = $this->_owApp->getCustomLogger('statements');
+        $this->_translate = $this->_owApp->translate;
     }
 
     public function getMetadataSources()
@@ -50,31 +51,34 @@ class ArticleIndexHelper
             if (isset($collections)) {
                 foreach ($collections as $collection) {
                     $selection = isset($collection['usedBy']);
-                    $prohibited = isset($collection['usageProhibitedBy']);
-                    $accessDenied = false;
-                    $disableCheckbox = false;
-                    if(isset($collection['isRestricted']) && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes'){
-                        $accessDenied = true;
-                        $disableCheckbox = true;
-                    }
-                    if($prohibited || $accessDenied){
-                        $disableCheckbox = true;
-                    }
-                    $permitted = false;
-                    if(isset($collection['permittedForLibrary']) && $collection['permittedForLibrary'] == 'http://lobid.org/organisation/DE-15'){
-                        $permitted = true;
+                    $_owApp = OntoWiki::getInstance();
+                    $membership = $_owApp->getUser()->getIsMemberOf();
+                    if (!isset($collection['isRestricted']) || $collection['isRestricted'] == '') {
+                        $enableCheckbox = false;
+                    }else{
+                        if ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes') {
+
+                            if (isset($collection['permittedForLibrary']) && $collection['permittedForLibrary'] == $membership) {
+                                $enableCheckbox = true;
+                            }else{
+                                $enableCheckbox = false;
+                            }
+                        } else {
+                            $enableCheckbox = true;
+                        }
                     }
 
-                    $usage_note = '';
-                    if($accessDenied && $permitted){
-                        $usage_note = '</br><b> -> you need to contact your admin to select/deselect this collection</b>';
+                    $note = '';
+
+                    if (!$enableCheckbox) {
+                        $note .=  '</br><div id="statements-small-hint"> -> ' . $this->_translate->_('This collection is restricted. Please contact team finc for further information.') . ' team@finc.info</div>';
+
                     }
+
                     $resultArray['children'][] = array(
-                        "title" => isset($collection['label']) ? $collection['label'] . $usage_note : $collection['collection'] . $usage_note,
+                        "title" => isset($collection['label']) ? $collection['label'] . $note : $collection['collection'] . $note ,
                         "selected" => $selection,
-                        "hideCheckbox" => $disableCheckbox,
-                        "accessDenied" => $accessDenied,
-                        "permitted" => $permitted,
+                        "hideCheckbox" => !$enableCheckbox,
                         "data" => array("collection" => $collection['collection']));
                 }
             }
@@ -83,9 +87,11 @@ class ArticleIndexHelper
         }
 
         // _naturally_ sort by source ID.
-        function sortBySourceID($a, $b) {
+        function sortBySourceID($a, $b)
+        {
             return strnatcmp(intval($a['sourceID']), $b['sourceID']);
         }
+
         usort($return, "sortBySourceID");
 
         return $return;
@@ -104,7 +110,7 @@ class ArticleIndexHelper
             PREFIX amsl: <http://vocab.ub.uni-leipzig.de/amsl/>
             PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-            // SELECT ?collection ?usedBy ?label ?isRestricted ?permittedForLibrary WHERE {
+            SELECT ?collection ?usedBy ?label ?isRestricted ?permittedForLibrary WHERE {
                 ?collection a amsl:MetadataCollection .
                 ?collection amsl:includedInMetadataSource <" . $metadataSource . "> .
                 ?collection rdfs:label ?label
@@ -118,44 +124,44 @@ class ArticleIndexHelper
                 ?collection amsl:metadataUsagePermittedForLibrary ?permittedForLibrary . FILTER (?permittedForLibrary = <" . $membership . ">)
             }
         }";
-        $result = $this->_model->sparqlQuery($query);
-        return $result;
+            $result = $this->_model->sparqlQuery($query);
+            return $result;
+        }
+        return null;
     }
-    return null;
-}
 
 
-public function saveStatement($collection, $membership)
-{
-    $this->_logger->debug('ArticleIndexHelper:saveStatement: ' . $collection . ' --> ' . $membership);
-    $result = $this->_store->addStatement(
-        $this->_modelUri,
-        $collection,
-        "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
-        array('value' => $membership, 'type' => 'uri'),
-        false);
-    $this->_logger->debug('ArticleIndexHelper:saveStatement:result: ' . $result);
+    public function saveStatement($collection, $membership)
+    {
+        $this->_logger->debug('ArticleIndexHelper:saveStatement: ' . $collection . ' --> ' . $membership);
+        $result = $this->_store->addStatement(
+            $this->_modelUri,
+            $collection,
+            "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
+            array('value' => $membership, 'type' => 'uri'),
+            false);
+        $this->_logger->debug('ArticleIndexHelper:saveStatement:result: ' . $result);
 
-            // return resultId of added statement
-    return $result;
+        // return resultId of added statement
+        return $result;
 
-}
+    }
 
 
-public function deleteStatement($collection, $membership)
-{
-    $this->_logger->debug('ArticleIndexHelper:deleteStatement: ' . $collection . ' --> ' . $membership);
-    $return = $this->_store->deleteMatchingStatements(
-        $this->_modelUri,
-        $collection,
-        "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
-        array('value' => $membership, 'type' => 'uri'),
-        false);
-    $this->_logger->debug('ArticleIndexHelper:deleteStatement:$return: ' . $return);
+    public function deleteStatement($collection, $membership)
+    {
+        $this->_logger->debug('ArticleIndexHelper:deleteStatement: ' . $collection . ' --> ' . $membership);
+        $return = $this->_store->deleteMatchingStatements(
+            $this->_modelUri,
+            $collection,
+            "http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary",
+            array('value' => $membership, 'type' => 'uri'),
+            false);
+        $this->_logger->debug('ArticleIndexHelper:deleteStatement:$return: ' . $return);
 
-            // return number of deleted statements
-    return $return;
+        // return number of deleted statements
+        return $return;
 
-}
+    }
 
 }

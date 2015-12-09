@@ -24,7 +24,7 @@ $(document).ready(function () {
             checkbox: true, // Show checkboxes.
             debugLevel: 1, // 0:quiet, 1:normal, 2:debug
             focusOnSelect: true, // Set focus when node is checked by a mouse click
-            icons: false, // Display node icons.
+            icons: true, // Display node icons.
             quicksearch: true, // Navigate to next node by typing the first letters.
             extensions: ["filter"],
             keyboard: true,
@@ -47,6 +47,31 @@ $(document).ready(function () {
             // display a message after the tree has been initialized
             init: function (event, data) {
                 toastr.success('Collections successfully loaded.');
+                var tree = $("#tree").fancytree("getTree");
+                tree.visit(function(node){
+                    node.data.icon = false;
+                    node.renderTitle();
+                });
+                tree.visit(function(node){
+                    if(node.children != null) {
+                        for (var i = 0; i < node.children.length; i++) {
+                            var leaf = node.children[i];
+                            var selected = leaf.selected;
+                            var hideCheckbox = leaf.hideCheckbox;
+                            var name = leaf.title;
+                            if (hideCheckbox == true) {
+                                if (selected == true) {
+                                    leaf.data.icon = urlBase + 'statements/disabledselectedicon';
+                                } else {
+                                    leaf.data.icon = urlBase + 'statements/disabledunselectedicon';
+                                }
+                            }else{
+                                leaf.data.icon = false;
+                            }
+                            leaf.renderTitle();
+                        }
+                    }
+                });
             }
         }).on("click", "span.fancytree-title", function (event) {
             // Add a click handler to all node titles (using event delegation)
@@ -58,6 +83,8 @@ $(document).ready(function () {
                 );
             }
         });
+
+
 
 
         /**

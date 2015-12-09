@@ -48,13 +48,6 @@ class StatementsHelper extends OntoWiki_Component_Helper
                 $extrasMenu->setEntry('Select Metadata Collections', $owApp->config->urlBase . 'statements/collectiontolibrary');
             }
         }
-
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/statements.js');
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/handlebars.js');
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/statements/templates/statements/js/jquery.fancytree-all.min.js');
-
-        $this->view->headLink()->appendStylesheet($this->_config->urlBase . 'extensions/statements/templates/statements/css/statements.css');
-        $this->view->headLink()->appendStylesheet($this->_config->urlBase . 'extensions/statements/templates/statements/css/ui.fancytree.css');
     }
 }
 

@@ -293,7 +293,7 @@ span.fancytree-node {
 }
 span.fancytree-title {
   color: black;
-  cursor: pointer;
+  /*cursor: pointer;*/
   display: inline-block;
   vertical-align: top;
   min-height: 20px;
@@ -306,6 +306,23 @@ span.fancytree-title {
   -o-border-radius: 0px;
   border-radius: 0px;
 }
+
+.checkfile{
+  float: left;
+  margin-top: 3px;
+  font-size: xx-small;
+  position: relative;
+}
+.headline{
+  float: left;
+  margin-right: 20px;
+}
+.headline:hover{
+  cursor: pointer;
+    color: #CF5300;
+    text-decoration: underline;
+}
+
 span.fancytree-node.fancytree-error span.fancytree-title {
   color: red;
 }
@@ -481,7 +498,7 @@ span.fancytree-title {
   border: 1px solid transparent;
 }
 .fancytree-container.fancytree-treefocus span.fancytree-focused span.fancytree-title {
-  border-color: #CF5300;
+  border: 1px solid transparent;
 }
 /*span.fancytree-active span.fancytree-title,*/
 /*span.fancytree-selected span.fancytree-title {*/
@@ -493,8 +510,8 @@ span.fancytree-node span.fancytree-selected span.fancytree-title {
 }
 span.fancytree-node:hover span.fancytree-title {
   /*background-color: white;*/
-    color: #CF5300;
-    text-decoration: underline;
+  /*  color: #CF5300;
+    text-decoration: underline;*/
 }
 /*.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title,*/
 /*.fancytree-container.fancytree-treefocus span.fancytree-selected span.fancytree-title {*/

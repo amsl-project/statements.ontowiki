@@ -35,12 +35,24 @@ class ArticleIndexHelper
         return $this->buildCollectionArray($sources);
     }
 
+    private function getIsHoldingsFilesCheckedArray($library)
+    {
+        $query = "SELECT ?source WHERE {?source <http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor> <" . $library . ">}";
+        $sources = $this->_model->sparqlQuery($query);
+        $result = array();
+        foreach($sources as $source){
+            $result[] = $source['source'];
+        }
+        return $result;
+    }
+
     private function buildCollectionArray($sources)
     {
-
         $return = array();
         $titleHelper = new OntoWiki_Model_TitleHelper();
-
+        $_owApp = OntoWiki::getInstance();
+        $membership = $_owApp->getUser()->getIsMemberOf();
+        $checkedHoldingsFiles = $this->getIsHoldingsFilesCheckedArray($membership);
         foreach ($sources as $source) {
             $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']);
             $resultArray['hideCheckbox'] = true;
@@ -51,8 +63,6 @@ class ArticleIndexHelper
             if (isset($collections)) {
                 foreach ($collections as $collection) {
                     $selection = isset($collection['usedBy']);
-                    $_owApp = OntoWiki::getInstance();
-                    $membership = $_owApp->getUser()->getIsMemberOf();
                     if (!isset($collection['isRestricted']) || $collection['isRestricted'] == '') {
                         $enableCheckbox = false;
                     }else{
@@ -68,15 +78,24 @@ class ArticleIndexHelper
                         }
                     }
 
+                    $label = isset($collection['label']) ? $collection['label'] : $collection['collection'];
+                    $uri = $collection['collection'];
                     $note = '';
-
                     if (!$enableCheckbox) {
-                        $note .=  '</br><div id="statements-small-hint"> -> ' . $this->_translate->_('This collection is restricted. Please contact team finc for further information.') . ' team@finc.info</div>';
+                        $note .=  '<br> <div id="statements-small-hint"> -> ' . $this->_translate->_('This collection is restricted. Please contact team finc for further information.') . ' team@finc.info</div>';
 
+                    }else{
+                        if(in_array($uri, $checkedHoldingsFiles)){
+                            $checked = 'checked';
+                        }else{
+                            $checked = '';
+                        }
+                        $note .= '<div class="checkfile">check holdings file&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . $uri . '"></div>';
                     }
 
+                    $labeldiv = '<div class="headline">' . $label . '</div>';
                     $resultArray['children'][] = array(
-                        "title" => isset($collection['label']) ? $collection['label'] . $note : $collection['collection'] . $note ,
+                        "title" => $labeldiv . $note ,
                         "selected" => $selection,
                         "hideCheckbox" => !$enableCheckbox,
                         "data" => array("collection" => $collection['collection']));
@@ -147,6 +166,22 @@ class ArticleIndexHelper
 
     }
 
+    public function saveCheckHoldingsFiles($collection, $membership)
+    {
+        $uri = $this->_modelUri;
+        $this->_logger->debug('ArticleIndexHelper:saveCheckHoldingsFiles: ' . $collection . ' --> ' . $membership);
+        $result = $this->_store->addStatement(
+            $this->_modelUri,
+            $collection,
+            "http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor",
+            array('value' => $membership, 'type' => 'uri'),
+            false);
+        $this->_logger->debug('ArticleIndexHelper:saveCheckHoldingsFiles:result: ' . $result);
+
+        // return resultId of added statement
+        return $result;
+
+    }
 
     public function deleteStatement($collection, $membership)
     {
@@ -164,4 +199,19 @@ class ArticleIndexHelper
 
     }
 
+    public function deleteCheckHoldingsFiles($collection, $membership)
+    {
+        $this->_logger->debug('ArticleIndexHelper:deleteCheckHoldingsFiles: ' . $collection . ' --> ' . $membership);
+        $return = $this->_store->deleteMatchingStatements(
+            $this->_modelUri,
+            $collection,
+            "http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor",
+            array('value' => $membership, 'type' => 'uri'),
+            false);
+        $this->_logger->debug('ArticleIndexHelper:deleteCheckHoldingsFiles:$return: ' . $return);
+
+        // return number of deleted statements
+        return $return;
+
+    }
 }

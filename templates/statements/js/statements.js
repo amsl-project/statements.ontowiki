@@ -48,12 +48,12 @@ $(document).ready(function () {
             init: function (event, data) {
                 toastr.success('Collections successfully loaded.');
                 var tree = $("#tree").fancytree("getTree");
-                tree.visit(function(node){
+                tree.visit(function (node) {
                     node.data.icon = false;
                     node.renderTitle();
                 });
-                tree.visit(function(node){
-                    if(node.children != null) {
+                tree.visit(function (node) {
+                    if (node.children != null) {
                         for (var i = 0; i < node.children.length; i++) {
                             var leaf = node.children[i];
                             var selected = leaf.selected;
@@ -65,15 +65,16 @@ $(document).ready(function () {
                                 } else {
                                     leaf.data.icon = urlBase + 'extensions/statements/images/deselectedRestricted.png';
                                 }
-                            }else{
+                            } else {
                                 leaf.data.icon = false;
                             }
                             leaf.renderTitle();
                         }
                     }
                 });
+
             }
-        }).on("click", "span.fancytree-title", function (event) {
+        }).on("click", ".headline", function (event) {
             // Add a click handler to all node titles (using event delegation)
             var node = $.ui.fancytree.getNode(event);
             if (node.data.collection) {
@@ -82,9 +83,37 @@ $(document).ready(function () {
                     '_blank' // <- This is what makes it open in a new window.
                 );
             }
+        }).on("click", ".filecheckbox", function (event) {
+            // Add behavior to the 'holdings files checkbox'
+            var node = $.ui.fancytree.getNode(event);
+            var sourceNode = node.getParent();
+            var container = document.createElement('div');
+            container.innerHTML = node.title;
+            var title = $('.headline', container).text();
+
+            var collection = node.data.collection;
+            var source = sourceNode.data.sourceUri;
+            var checked = $(this).is(':checked');
+            var url = urlBase + 'statements/checkholdingsfiles';
+
+            $.ajax({
+                url: url,
+                data: {collection: collection, source: source, checked: checked},
+                dataType: 'json',
+                success: function (data) {
+                    toastr.success('Changes saved successfully.', title);
+                },
+                error: function (data) {
+                    toastr.error('Changes could not be saved correctly.', title);
+                    if (node.isSelected()) {
+                        node.setSelected(false);
+                    } else {
+                        node.setSelected(true);
+                    }
+                }
+            });
+
         });
-
-
 
 
         /**
@@ -129,7 +158,11 @@ $(document).ready(function () {
             // A node was activated: write the statement:
             var node = data.node;
             var sourceNode = node.getParent();
-            var title = node.title;
+            //var title = node.title;
+            var container = document.createElement('div');
+            container.innerHTML = node.title;
+            var title = $('.headline', container).text();
+
             var collection = node.data.collection;
             var source = sourceNode.data.sourceUri;
 

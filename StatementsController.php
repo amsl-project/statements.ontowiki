@@ -54,6 +54,44 @@ class StatementsController extends OntoWiki_Controller_Component
     }
 
     /**
+     * Saves the users decision whether or not the EZB holdings files shall be checked
+     */
+    public function checkholdingsfilesAction(){
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+        $params = $this->_request->getParams();
+        $collection = $params['collection'];
+        $source = $params['source'];
+        $checked = $params['checked'];
+
+        $_owApp = OntoWiki::getInstance();
+        $logger = $_owApp->getCustomLogger('statements');
+        $logger->debug('StatementsController:deletestatementAction: ' . $collection . ' --> ' . $source);
+
+        $membership = $_owApp->getUser()->getIsMemberOf();
+
+        $discoveryIndexUri = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndexUri);
+
+        if(isset($membership)) {
+            if ($_owApp->erfurt->getAc()->isModelAllowed('edit', $discoveryIndexUri) === true) {
+                if($checked == "true"){
+                    $return = $articleIndex->saveCheckHoldingsFiles($collection, $membership);
+                }else{
+                    $return = $articleIndex->deleteCheckHoldingsFiles($collection, $membership);
+                }
+                $this->_response->setBody(json_encode($return));
+                return;
+            } else {
+                $msg = 'StatementsController:deletestatementAction: not allowed to edit ';
+                $msg.=  $discoveryIndexUri . '. Statement not deleted.';
+                $logger->debug($msg);
+            }
+        }
+        $this->_response->setHeader('HTTP/1.1 403 Forbidden');
+    }
+
+    /**
      * Saves one collection after the checkbox has been checked while it was unchecked before.
      */
     public function savearticleindexstatementAction() {

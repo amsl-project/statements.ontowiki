@@ -6,6 +6,16 @@
 #statements-small-hint {
     font-size: xx-small;
 }
+#smc-headline{
+    font-size: small;
+    float: left;
+}
+#smc-uri{
+    font-size: xx-small;
+    padding-top: 6px;
+    padding-left: 10px;
+
+}
 
 
 

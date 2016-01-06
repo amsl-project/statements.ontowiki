@@ -24,12 +24,18 @@ $urlBase = OntoWiki::getInstance()->getUrlBase();
 <link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/statements/templates/statements/css/statements.css')?>">
 <link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/statements/templates/statements/css/ui.fancytree.css')?>">
 
-<h2><?php echo $this->_('Library'); ?>: <?php echo $this->membership; ?></h2>
+<div id="smc-headline">
+    <?php echo $this->_('Library'); ?>: <?php echo $this->label; ?>
+</div>
+
+<div id="smc-uri">
+    &nbsp;(<?php echo $this->membership; ?>)
+</div>
+
+<div style="clear: both;">
     <input id="inputFilterSearch" name="search" class="text" type="search" placeholder="Filter...">
     <button id="btnResetSearch" class="minibutton">&times;</button>
-<br>
-<div id="tree">
-
-
 </div>
+
+<div id="tree"></div>
 

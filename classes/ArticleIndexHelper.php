@@ -46,6 +46,20 @@ class ArticleIndexHelper
         return $result;
     }
 
+    public function getOrganisationLabel($membership){
+        $query = "SELECT ?label FROM <http://localhost/OntoWiki/Config/> WHERE  {<" . $membership . "> <http://www.w3.org/2000/01/rdf-schema#label> ?label }";
+        $options = $this->_owApp->getConfig()->toArray()['store']['virtuoso'];
+        $options['is_open_source_version'] = '1';
+        $backend = new Erfurt_Store_Adapter_Virtuoso($options);
+        $backend->init();
+        $sources = $backend->sparqlQuery($query);
+        $result = 'no label found';
+        if(count($sources) == 1){
+            $result = $sources[0]['label'];
+        }
+        return $result;
+    }
+
     private function buildCollectionArray($sources)
     {
         $return = array();

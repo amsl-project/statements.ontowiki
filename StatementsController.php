@@ -32,7 +32,11 @@ class StatementsController extends OntoWiki_Controller_Component
         $this->addModuleContext('main.window.fulltextsearch.info');
         $_owApp->getNavigation()->disableNavigation();
 
+        $dicoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($dicoveryIndex);
+
         $membership = $_owApp->getUser()->getIsMemberOf();
+        $this->view->label = $articleIndex->getOrganisationLabel($membership);
         $this->view->membership = (isset($membership) && $membership !== "") ? $membership : $translate->_("The current user has no membership");
 
     }

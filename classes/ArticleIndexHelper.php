@@ -47,17 +47,15 @@ class ArticleIndexHelper
     }
 
     public function getOrganisationLabel($membership){
-        $query = "SELECT ?label FROM <http://localhost/OntoWiki/Config/> WHERE  {<" . $membership . "> <http://www.w3.org/2000/01/rdf-schema#label> ?label }";
-        $options = $this->_owApp->getConfig()->toArray()['store']['virtuoso'];
-        $options['is_open_source_version'] = '1';
-        $backend = new Erfurt_Store_Adapter_Virtuoso($options);
-        $backend->init();
-        $sources = $backend->sparqlQuery($query);
-        $result = 'no label found';
-        if(count($sources) == 1){
-            $result = $sources[0]['label'];
+        $_owApp = OntoWiki::getInstance();
+        $lang = $_owApp->language;
+        require_once 'OntoWiki/Model/TitleHelper.php';
+        $titleHelper = new OntoWiki_Model_TitleHelper($this->_model);
+        $title = $titleHelper->getTitle($membership, $lang);
+        if($title == ''){
+            $title = $this->_translate->_('No no organisation label found!');
         }
-        return $result;
+        return $title;
     }
 
     private function buildCollectionArray($sources)
@@ -104,7 +102,7 @@ class ArticleIndexHelper
                         }else{
                             $checked = '';
                         }
-                        $note .= '<div class="checkfile">check holdings file&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . $uri . '"></div>';
+                        $note .= '<div class="checkfile">' . $this->_translate->_('evaluate holdings file') . '&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . $uri . '"></div>';
                     }
 
                     $labeldiv = '<div class="headline">' . $label . '</div>';

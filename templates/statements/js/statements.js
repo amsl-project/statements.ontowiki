@@ -114,6 +114,18 @@ $(document).ready(function () {
             });
 
         });
+        $('#unfold').click(function() {
+            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+            var test = $('#cccdt')[0];
+            var newdiv = document.createElement('img');
+            newdiv.setAttribute("src", url);
+            newdiv.setAttribute("id", "spin");
+            test.appendChild(newdiv);
+            $("#tree").fancytree("getRootNode").visit(function(node){
+                node.setExpanded(true);
+            });
+            test.removeChild(newdiv);
+        });
 
 
         /**

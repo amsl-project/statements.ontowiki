@@ -13,7 +13,7 @@ function prettyPrintJson($a)
     print_r($pretty);
     echo "</pre>";
 }
-
+$translate = OntoWiki::getInstance()->translate;
 $urlBase = OntoWiki::getInstance()->getUrlBase();
 
 ?>
@@ -32,10 +32,12 @@ $urlBase = OntoWiki::getInstance()->getUrlBase();
     &nbsp;(<?php echo $this->membership; ?>)
 </div>
 
-<div style="clear: both;">
+<div id="cccdt" style="clear: both;">
     <input id="inputFilterSearch" name="search" class="text" type="search" placeholder="Filter...">
     <button id="btnResetSearch" class="minibutton">&times;</button>
+    <button id="unfold" class="minibutton"><?php echo $this->_($translate->translate('expand all')) ?></button>
 </div>
+
 
 <div id="tree"></div>
 

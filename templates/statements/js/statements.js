@@ -5,7 +5,8 @@
  * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
-
+var restorebutton;
+var lastState = 0;
 $(document).ready(function () {
     toastr.options = {
         "positionClass": "toast-bottom-right"
@@ -114,19 +115,73 @@ $(document).ready(function () {
             });
 
         });
-        $('#unfold').click(function() {
+
+        restorebutton = $('#restore')[0];
+        $('#unfold').click(function () {
             var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
             var test = $('#cccdt')[0];
             var newdiv = document.createElement('img');
             newdiv.setAttribute("src", url);
             newdiv.setAttribute("id", "spin");
             test.appendChild(newdiv);
-            $("#tree").fancytree("getRootNode").visit(function(node){
-                node.setExpanded(true);
+            lastState = 0;
+            $("#tree").fancytree("getRootNode").visit(function (node) {
+                if (!node.data.collection) {
+                    if (!node.isExpanded()) {
+                        node.data.open = false;
+                        node.setExpanded(true, {noAnimation: true, noEvents: true});
+                    } else {
+                        node.data.open = true;
+                        this.lastState++;
+                        var hugo;
+                    }
+                }
             });
             test.removeChild(newdiv);
+            if(lastState > 0) {
+                test.appendChild(restorebutton);
+            }
         });
 
+        $('#fold').click(function () {
+            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+            var test = $('#cccdt')[0];
+            var newdiv = document.createElement('img');
+            newdiv.setAttribute("src", url);
+            newdiv.setAttribute("id", "spin");
+            test.appendChild(newdiv);
+            $("#tree").fancytree("getRootNode").visit(function (node) {
+                if (!node.data.collection) {
+                    node.data.open = false;
+                    if (node.isExpanded()) {
+                        node.setExpanded(false, {noAnimation: true, noEvents: true});
+                    }
+                }
+            });
+            test.removeChild(newdiv);
+
+            test.removeChild(restorebutton);
+        });
+
+        $('#restore').click(function () {
+            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+            var test = $('#cccdt')[0];
+            var newdiv = document.createElement('img');
+            newdiv.setAttribute("src", url);
+            newdiv.setAttribute("id", "spin");
+            test.appendChild(newdiv);
+            $("#tree").fancytree("getRootNode").visit(function (node) {
+                if (!node.data.collection) {
+                    if (!node.data.open) {
+                        node.setExpanded(false, {noAnimation: true, noEvents: true});
+                    }
+                }
+            });
+            test.removeChild(newdiv);
+            test.removeChild(restorebutton);
+        });
+
+        restorebutton.remove();
 
         /**
          * reset search button behaviour

@@ -58,6 +58,11 @@ class ArticleIndexHelper
         return $title;
     }
 
+    private function cmp($a, $b)
+    {
+        return strcasecmp ( $a['label'] , $b['label'] );
+    }
+
     private function buildCollectionArray($sources)
     {
         $return = array();
@@ -73,6 +78,7 @@ class ArticleIndexHelper
             $resultArray['data'] = array("sourceUri" => $source['source']);
             $collections = $this->queryMetadataCollections($source['source']);
             if (isset($collections)) {
+                usort($collections, array('ArticleIndexHelper', 'cmp'));
                 foreach ($collections as $collection) {
                     $selection = isset($collection['usedBy']);
                     if (!isset($collection['isRestricted']) || $collection['isRestricted'] == '') {

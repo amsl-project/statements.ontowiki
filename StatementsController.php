@@ -57,6 +57,90 @@ class StatementsController extends OntoWiki_Controller_Component
         $this->_response->setBody(json_encode($models));
     }
 
+    public function checkallAction(){
+        $source = $this->_request->getParam("source");
+        $discoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndex);
+        $metadataCollections = $articleIndex->queryMetadataCollections($source);
+        $_owApp = OntoWiki::getInstance();
+        $membership = $_owApp->getUser()->getIsMemberOf();
+
+        $stmt = array();
+        foreach($metadataCollections as $collection){
+            if($collection['usedBy'] == null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+                $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary'][] = array('value' => $membership, 'type' => 'uri');
+            }
+        }
+        $store = $this->_erfurt->getStore();
+        $store->addMultipleStatements($discoveryIndex, $stmt);
+
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+    }
+
+    public function uncheckallAction(){
+        $source = $this->_request->getParam("source");
+        $discoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndex);
+        $metadataCollections = $articleIndex->queryMetadataCollections($source);
+        $_owApp = OntoWiki::getInstance();
+        $membership = $_owApp->getUser()->getIsMemberOf();
+
+        $stmt = array();
+        foreach($metadataCollections as $collection){
+            if($collection['usedBy'] != null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+                $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary'][] = array('value' => $membership, 'type' => 'uri');
+            }
+        }
+        $store = $this->_erfurt->getStore();
+        $store->deleteMultipleStatements($discoveryIndex, $stmt);
+
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+    }
+
+    public function evaluateallAction(){
+        $source = $this->_request->getParam("source");
+        $discoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndex);
+        $metadataCollections = $articleIndex->queryMetadataCollections($source);
+        $_owApp = OntoWiki::getInstance();
+        $membership = $_owApp->getUser()->getIsMemberOf();
+
+        $stmt = array();
+        foreach($metadataCollections as $collection){
+            if($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No'){
+                $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor'][] = array('value' => $membership, 'type' => 'uri');
+            }
+        }
+        $store = $this->_erfurt->getStore();
+        $store->addMultipleStatements($discoveryIndex, $stmt);
+
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+    }
+
+    public function evaluetenoneAction(){
+        $source = $this->_request->getParam("source");
+        $discoveryIndex = $this->_privateConfig->statements->discoveryIndex;
+        $articleIndex = new ArticleIndexHelper($discoveryIndex);
+        $metadataCollections = $articleIndex->queryMetadataCollections($source);
+        $_owApp = OntoWiki::getInstance();
+        $membership = $_owApp->getUser()->getIsMemberOf();
+
+        $stmt = array();
+        foreach($metadataCollections as $collection) {
+            if ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+                $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor'][] = array('value' => $membership, 'type' => 'uri');
+            }
+        }
+        $store = $this->_erfurt->getStore();
+        $store->deleteMultipleStatements($discoveryIndex, $stmt);
+
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+    }
+
     /**
      * Saves the users decision whether or not the EZB holdings files shall be checked
      */

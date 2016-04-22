@@ -6,8 +6,179 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 var restorebutton;
+var expandButton;
+var collapsButton;
 var lastState = 0;
+function addStatement01(node){
+    var title = node.title;
+    var expanded = node.isExpanded();
+    var pos = title.indexOf("<br> <input");
+    node.get
+    if(!expanded){
+        if(pos > -1){
+            node.setTitle(title.substr(0, pos - 1));
+        }
+    }else{
+        if(pos == -1){
+            node.setTitle(node.title + ' <br> <input style=" font-size : 1em; height: 1.5em;" type="button" name="abc" value="check all" class="checkThemAll"><input style=" font-size : 1em; height: 1.5em;" type="button" name="abc" value="un-check all" class="unCheckThemAll"> | <input style=" font-size : 1em; height: 1.5em;" type="button" name="abc" value="evaluate all" class="evaluateThemAll"><input style=" font-size : 1em; height: 1.5em;" type="button" name="abc" value="evaluate none" class="evaluateNone">');
+        }
+    }
+}
+function addEventlisteners01(){
+    $('.checkThemAll').each(function() {
+        $( this ).click(function() {
+            if(!confirm("Are you sure?")){
+                return;
+            }
+            var source = $( this ).parent().find(".asdfjka")[0].innerHTML;
+            $.get( urlBase + 'statements/checkall?source=' + source, function( data ) {
+                location.reload();
+            }).fail(function() {
+                alert( "Something went wrong - please contact an administrator!" );
+            });
+        });
+    })
+
+    $('.unCheckThemAll').each(function() {
+        $( this ).click(function() {
+            if(!confirm("Are you sure?")){
+                return;
+            }
+            var source = $( this ).parent().find(".asdfjka")[0].innerHTML;
+            $.get( urlBase + 'statements/uncheckall?source=' + source, function( data ) {
+                location.reload();
+            }).fail(function() {
+                alert( "Something went wrong - please contact an administrator!" );
+            });
+        });
+    })
+    $('.evaluateThemAll').each(function() {
+        $( this ).click(function() {
+            if(!confirm("Are you sure?")){
+                return;
+            }
+            var source = $( this ).parent().find(".asdfjka")[0].innerHTML;
+            $.get( urlBase + 'statements/evaluateall?source=' + source, function( data ) {
+                location.reload();
+            });
+        });
+    })
+    $('.evaluateNone').each(function() {
+        $( this ).click(function() {
+            if(!confirm("Are you sure?")){
+                return;
+            }
+            var source = $( this ).parent().find(".asdfjka")[0].innerHTML;
+            $.get( urlBase + 'statements/evaluetenone?source=' + source, function( data ) {
+                location.reload();
+            });
+        });
+    })
+}
+
+function addExpandEventhandlers(){
+    $('#unfold').click(function () {
+        var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+        var test = $('#cccdt')[0];
+        try {
+            test.removeChild(expandButton);
+        }catch (e){}
+        var newdiv = document.createElement('img');
+        newdiv.setAttribute("src", url);
+        newdiv.setAttribute("id", "spin");
+        test.appendChild(newdiv);
+        lastState = 0;
+        $("#tree").fancytree("getRootNode").visit(function (node) {
+            if (!node.data.collection) {
+                if (!node.isExpanded()) {
+                    node.data.open = false;
+                    node.setExpanded(true, {noAnimation: true, noEvents: true});
+                } else {
+                    node.data.open = true;
+                    lastState++;
+                }
+            }
+            addStatement01(node);
+        });
+        test.removeChild(newdiv);
+        test.appendChild(collapsButton);
+        //addCollapsEventhandlers();
+        if(lastState > 0) {
+            test.appendChild(restorebutton);
+            //addRestoreEventhandlers();
+        }
+        addEventlisteners01();
+    });
+}
+
+function addCollapsEventhandlers() {
+    $('#fold').click(function () {
+        var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+        var test = $('#cccdt')[0];
+        try {
+        test.removeChild(collapsButton);
+        }catch (e){}
+        try {
+            test.removeChild(restorebutton);
+        }catch (e){}
+        test.appendChild(expandButton);
+        //addExpandEventhandlers();
+        var newdiv = document.createElement('img');
+        newdiv.setAttribute("src", url);
+        newdiv.setAttribute("id", "spin");
+        test.appendChild(newdiv);
+        $("#tree").fancytree("getRootNode").visit(function (node) {
+            if (!node.data.collection) {
+                node.data.open = false;
+                if (node.isExpanded()) {
+                    node.setExpanded(false, {noAnimation: true, noEvents: true});
+                }
+            }
+            addStatement01(node);
+        });
+        lastState = 0;
+        test.removeChild(newdiv);
+        addEventlisteners01();
+    });
+}
+
+function addRestoreEventhandlers() {
+    $('#restore').click(function () {
+        var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
+        var test = $('#cccdt')[0];
+        var newdiv = document.createElement('img');
+        newdiv.setAttribute("src", url);
+        newdiv.setAttribute("id", "spin");
+        test.removeChild(restorebutton);
+        test.appendChild(expandButton);
+        test.appendChild(collapsButton);
+        //addCollapsEventhandlers();
+        //addExpandEventhandlers();
+        test.appendChild(newdiv);
+        $("#tree").fancytree("getRootNode").visit(function (node) {
+            if (!node.data.collection) {
+                if (!node.data.open) {
+                    node.setExpanded(false, {noAnimation: true, noEvents: true});
+                }
+            }
+            addStatement01(node);
+        });
+        test.removeChild(newdiv);
+        addEventlisteners01();
+    });
+}
+
 $(document).ready(function () {
+
+    restorebutton = $('#restore')[0];
+    expandButton = $('#unfold')[0];
+    collapsButton = $('#fold')[0];
+    addExpandEventhandlers();
+    addCollapsEventhandlers();
+    addRestoreEventhandlers();
+    restorebutton.remove();
+    collapsButton.remove();
+
     toastr.options = {
         "positionClass": "toast-bottom-right"
     };
@@ -84,6 +255,10 @@ $(document).ready(function () {
                     '_blank' // <- This is what makes it open in a new window.
                 );
             }
+        }).on("click", ".fancytree-expander", function (event) {
+            var node = $.ui.fancytree.getNode(event);
+            addStatement01(node);
+            addEventlisteners01();
         }).on("click", ".filecheckbox", function (event) {
             // Add behavior to the 'holdings files checkbox'
             var node = $.ui.fancytree.getNode(event);
@@ -116,72 +291,6 @@ $(document).ready(function () {
 
         });
 
-        restorebutton = $('#restore')[0];
-        $('#unfold').click(function () {
-            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
-            var test = $('#cccdt')[0];
-            var newdiv = document.createElement('img');
-            newdiv.setAttribute("src", url);
-            newdiv.setAttribute("id", "spin");
-            test.appendChild(newdiv);
-            lastState = 0;
-            $("#tree").fancytree("getRootNode").visit(function (node) {
-                if (!node.data.collection) {
-                    if (!node.isExpanded()) {
-                        node.data.open = false;
-                        node.setExpanded(true, {noAnimation: true, noEvents: true});
-                    } else {
-                        node.data.open = true;
-                        this.lastState++;
-                        var hugo;
-                    }
-                }
-            });
-            test.removeChild(newdiv);
-            if(lastState > 0) {
-                test.appendChild(restorebutton);
-            }
-        });
-
-        $('#fold').click(function () {
-            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
-            var test = $('#cccdt')[0];
-            var newdiv = document.createElement('img');
-            newdiv.setAttribute("src", url);
-            newdiv.setAttribute("id", "spin");
-            test.appendChild(newdiv);
-            $("#tree").fancytree("getRootNode").visit(function (node) {
-                if (!node.data.collection) {
-                    node.data.open = false;
-                    if (node.isExpanded()) {
-                        node.setExpanded(false, {noAnimation: true, noEvents: true});
-                    }
-                }
-            });
-            test.removeChild(newdiv);
-
-            test.removeChild(restorebutton);
-        });
-
-        $('#restore').click(function () {
-            var url = urlBase + 'extensions/themes/amsl/images/spinner.gif';
-            var test = $('#cccdt')[0];
-            var newdiv = document.createElement('img');
-            newdiv.setAttribute("src", url);
-            newdiv.setAttribute("id", "spin");
-            test.appendChild(newdiv);
-            $("#tree").fancytree("getRootNode").visit(function (node) {
-                if (!node.data.collection) {
-                    if (!node.data.open) {
-                        node.setExpanded(false, {noAnimation: true, noEvents: true});
-                    }
-                }
-            });
-            test.removeChild(newdiv);
-            test.removeChild(restorebutton);
-        });
-
-        restorebutton.remove();
 
         /**
          * reset search button behaviour

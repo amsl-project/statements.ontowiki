@@ -71,7 +71,8 @@ class ArticleIndexHelper
         $membership = $_owApp->getUser()->getIsMemberOf();
         $checkedHoldingsFiles = $this->getIsHoldingsFilesCheckedArray($membership);
         foreach ($sources as $source) {
-            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']);
+            $checkThemAll = '<p class="asdfjka" style=" display:none;" >' . $source['source'] . '</p>';
+            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $checkThemAll;
             $resultArray['hideCheckbox'] = true;
             $resultArray['folder'] = true;
             $resultArray['sourceID'] = $source['sourceID'];

@@ -1,7 +1,7 @@
 #btnResetSearch {
-    line-height: 1;
+    line-height: 1.3;
     /*margin-top: 0;*/
-    padding: .2em;
+    padding: 0em;
 }
 #statements-small-hint {
     font-size: xx-small;
@@ -14,6 +14,18 @@
     font-size: xx-small;
     padding-top: 6px;
     padding-left: 10px;
+}
+
+.statementsMyButton {
+    font-weight: normal;
+    padding: 0;
+    line-height: 1;
+    font-size: 1em;
+}
+
+.statementsMyButton2 {
+    padding: 0em;
+    line-height: 1.3;
 }
 
 

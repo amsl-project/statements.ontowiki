@@ -109,7 +109,7 @@ class ArticleIndexHelper
                         }else{
                             $checked = '';
                         }
-                        $note .= '<div class="checkfile">' . $this->_translate->_('evaluate holdings file') . '&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . $uri . '"></div>';
+                        $note .= '<div class="checkfile">' . $this->_translate->_('evaluate holdings file') . '&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . uniqid("aasdf") . '"></div>';
                     }
 
                     $labeldiv = '<div class="headline">' . $label . '</div>';

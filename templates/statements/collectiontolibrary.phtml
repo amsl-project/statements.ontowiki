@@ -34,12 +34,11 @@ $urlBase = OntoWiki::getInstance()->getUrlBase();
 
 <div id="cccdt" style="clear: both;">
     <input id="inputFilterSearch" name="search" class="text" type="search" placeholder="Filter...">
-    <button id="btnResetSearch" class="minibutton">&times;</button>
-    <button id="unfold" class="minibutton"><?php echo $this->_($translate->translate('expand all')) ?></button>
-    <button id="fold" class="minibutton"><?php echo $this->_($translate->translate('collaps all')) ?></button>
-    <button id="restore" class="minibutton"><?php echo $this->_($translate->translate('restore')) ?></button>
+    <button id="btnResetSearch" class="minibutton statementsMyButton2">&nbsp;&times;&nbsp;</button>
+    <button id="unfold" class="minibutton statementsMyButton2">&nbsp;<?php echo $this->_($translate->translate('expand all')) ?>&nbsp;</button>
+    <button id="fold" class="minibutton statementsMyButton2">&nbsp;<?php echo $this->_($translate->translate('collaps all')) ?>&nbsp;</button>
+    <button id="restore" class="minibutton statementsMyButton2">&nbsp;<?php echo $this->_($translate->translate('restore')) ?>&nbsp;</button>
 </div>
 
 
 <div id="tree"></div>
-

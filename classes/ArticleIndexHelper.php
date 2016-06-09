@@ -30,7 +30,13 @@ class ArticleIndexHelper
 
     public function getMetadataSources()
     {
-        $query = "SELECT ?source ?sourceID WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> . ?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID}";
+        $query = "SELECT ?source ?sourceID ?status WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> . ?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID .
+   OPTIONAL {
+      ?source <http://vocab.ub.uni-leipzig.de/amsl/metadataSourceImplStatus> ?statusID .
+      ?statusID <http://www.w3.org/2000/01/rdf-schema#label> ?status .
+      FILTER (lang(?status) = 'en')
+   }
+}";
         $sources = $this->_model->sparqlQuery($query);
         return $this->buildCollectionArray($sources);
     }
@@ -72,7 +78,11 @@ class ArticleIndexHelper
         $checkedHoldingsFiles = $this->getIsHoldingsFilesCheckedArray($membership);
         foreach ($sources as $source) {
             $checkThemAll = '<p class="asdfjka" style=" display:none;" >' . $source['source'] . '</p>';
-            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $checkThemAll;
+            $status = $source['status'];
+            if($status != null && $status != ''){
+                $status = "<span style='color: dimgray;'> - " . $status . " </span>";
+            }
+            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source'])  . $status . $checkThemAll;
             $resultArray['hideCheckbox'] = true;
             $resultArray['folder'] = true;
             $resultArray['sourceID'] = $source['sourceID'];

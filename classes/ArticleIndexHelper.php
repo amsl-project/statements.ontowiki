@@ -30,11 +30,13 @@ class ArticleIndexHelper
 
     public function getMetadataSources()
     {
+        $_owApp = OntoWiki::getInstance();
+        $lang = $_owApp->language;
         $query = "SELECT ?source ?sourceID ?status WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> . ?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID .
    OPTIONAL {
       ?source <http://vocab.ub.uni-leipzig.de/amsl/metadataSourceImplStatus> ?statusID .
       ?statusID <http://www.w3.org/2000/01/rdf-schema#label> ?status .
-      FILTER (lang(?status) = 'en')
+      FILTER (lang(?status) = '" . $lang . "')
    }
 }";
         $sources = $this->_model->sparqlQuery($query);

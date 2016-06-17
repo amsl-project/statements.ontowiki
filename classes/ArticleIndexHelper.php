@@ -80,7 +80,7 @@ class ArticleIndexHelper
         $checkedHoldingsFiles = $this->getIsHoldingsFilesCheckedArray($membership);
         foreach ($sources as $source) {
             $statusID = $source['statusID'];
-            if($statusID != 'http://vocab.ub.uni-leipzig.de/amsl/Cancelled') {
+            if($statusID != 'http://vocab.ub.uni-leipzig.de/amsl/Cancelled' && $statusID != 'http://vocab.ub.uni-leipzig.de/amsl/Impossible') {
                 $status = $source['status'];
                 if ($status != null && $status != '') {
                     $status = "<span style='color: dimgray;'> - " . $status . " </span>";

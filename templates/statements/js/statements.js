@@ -11,6 +11,49 @@ var expandButton;
 var collapsButton;
 var lastState = 0;
 var source = null;
+
+var __i18n = {
+
+    'selectAll' : {
+        'en' : 'select all',
+        'de' : 'alle auswählen'
+    },
+
+    'deselectAll' : {
+        'en' : 'deselect all',
+        'de' : 'alle abwählen'
+    },
+
+    'applyEZB' : {
+        'en' : 'apply EZB holdings',
+        'de' : 'EZB-Lizenzen berücksichtigen'
+    },
+
+    'ignoreEZB' : {
+        'en' : 'ignore EZB holdings',
+        'de' : 'EZB-Lizenzen ignorieren'
+    },
+};
+
+var _translate = function (key) {
+    var args = [];
+    if (Object.prototype.toString.call(key) === '[object Array]') {
+        args = key.slice(1);
+        key = key[0];
+    }
+
+    if(key in __i18n && RDFAUTHOR_LANGUAGE in __i18n[key]) {
+        var translation = __i18n[key][RDFAUTHOR_LANGUAGE];
+        for(var i = 0; i < args.length; i++) {
+            translation = translation.replace('%' + (i+1), args[i]);
+        }
+        return translation;
+    }
+    else {
+        return key;
+    }
+};
+
 function addStatement01(node){
     var title = node.title;
     var expanded = node.isExpanded();
@@ -22,7 +65,7 @@ function addStatement01(node){
         }
     }else{
         if(pos == -1){
-            node.setTitle('<b>' + node.title + '</b> <br> <button name="abc" class="checkThemAll statementsMyButton">check all</button><button name="abc" class="unCheckThemAll statementsMyButton">un-check all</button> | <button name="abc" class="evaluateThemAll statementsMyButton">evaluate all</button><button name="abc" class="evaluateNone statementsMyButton">evaluate none</button>');
+            node.setTitle('<b>' + node.title + '</b> <br> <button name="abc" class="checkThemAll statementsMyButton">' + _translate("selectAll") + '</button><button name="abc" class="unCheckThemAll statementsMyButton">' + _translate("deselectAll") + '</button> | <button name="abc" class="evaluateThemAll statementsMyButton">' + _translate("applyEZB") + '</button><button name="abc" class="evaluateNone statementsMyButton">' + _translate("ignoreEZB") + '</button>');
         }
     }
 }

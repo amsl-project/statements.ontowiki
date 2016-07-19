@@ -32,13 +32,28 @@ class ArticleIndexHelper
     {
         $_owApp = OntoWiki::getInstance();
         $lang = $_owApp->language;
-        $query = "SELECT ?source ?sourceID ?status ?statusID WHERE { ?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> . ?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID .
+        $query = "SELECT ?source ?sourceID ?status ?statusID ?shard ?institution
+FROM <http://amsl.technology/discovery/>
+FROM <http://amsl.technology/discovery/metadata-usage/>
+FROM <http://amsl.technology/config/discovery/>
+FROM <http://vocab.ub.uni-leipzig.de/amsl/>
+FROM <http://lobid.org/>
+WHERE {
+?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> .
+?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID .
    OPTIONAL {
       ?source <http://vocab.ub.uni-leipzig.de/amsl/metadataSourceImplStatus> ?statusID .
       ?statusID <http://www.w3.org/2000/01/rdf-schema#label> ?status .
       FILTER (lang(?status) = '" . $lang . "')
    }
+   OPTIONAL {
+      ?source <http://vocab.ub.uni-leipzig.de/amsl/solrShard> ?shard .
+      ?shard <http://purl.org/dc/terms/creator> ?ignore .
+      ?ignore <http://www.w3.org/2000/01/rdf-schema#label> ?institution .
+      FILTER (lang(?institution) = '" . $lang . "')
+   }
 }";
+
         $sources = $this->_model->sparqlQuery($query);
         return $this->buildCollectionArray($sources);
     }
@@ -85,9 +100,13 @@ class ArticleIndexHelper
                 if ($status != null && $status != '') {
                     $status = "<span style='color: dimgray;'> - " . $status . " </span>";
                 }
+                if($source['institution'] == null || $source['institution'] == ""){
+                    $source['institution'] = $this->_translate->_("No supervising institution found!");
+                }
                 $checkThemAll = '<p class="asdfjka" style=" display:none;" >' . $source['source'] . '</p>';
+                $institution = '<p class="asdfjkb" style=" display:none;" >' . $source['institution'] . '</p>';
 
-                $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $status . $checkThemAll;
+                $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $status . $checkThemAll . $institution;
                 $resultArray['hideCheckbox'] = true;
                 $resultArray['folder'] = true;
                 $resultArray['sourceID'] = $source['sourceID'];

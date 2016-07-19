@@ -57,15 +57,16 @@ var _translate = function (key) {
 function addStatement01(node){
     var title = node.title;
     var expanded = node.isExpanded();
-    var pos = title.indexOf("<br> <button");
+    var pos = title.indexOf("<div styl");
     node.get
     if(!expanded){
         if(pos > -1){
-            node.setTitle(title.substr(0, pos - 1).replace('<b>', '').replace('</b>',''));
+            node.setTitle(title.substr(0, pos).replace('<b>', '').replace('</b>',''));
         }
     }else{
         if(pos == -1){
-            node.setTitle('<b>' + node.title + '</b> <br> <button name="abc" class="checkThemAll statementsMyButton">' + _translate("selectAll") + '</button><button name="abc" class="unCheckThemAll statementsMyButton">' + _translate("deselectAll") + '</button> | <button name="abc" class="evaluateThemAll statementsMyButton">' + _translate("applyEZB") + '</button><button name="abc" class="evaluateNone statementsMyButton">' + _translate("ignoreEZB") + '</button>');
+            var source = $(node.title).find(".asdfjkb").prevObject[2].innerHTML;
+            node.setTitle('<b>' + node.title + '</b><div style="color: #696969"> ' + source + ' </div> <button name="abc" class="checkThemAll statementsMyButton">' + _translate("selectAll") + '</button><button name="abc" class="unCheckThemAll statementsMyButton">' + _translate("deselectAll") + '</button> | <button name="abc" class="evaluateThemAll statementsMyButton">' + _translate("applyEZB") + '</button><button name="abc" class="evaluateNone statementsMyButton">' + _translate("ignoreEZB") + '</button>');
         }
     }
 }

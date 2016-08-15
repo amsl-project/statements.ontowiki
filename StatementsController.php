@@ -67,7 +67,7 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $stmt = array();
         foreach($metadataCollections as $collection){
-            if($collection['usedBy'] == null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+            if(($collection['usedBy'] == null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') || ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes' && $collection['permittedForLibrary'] == $membership)) {
                 $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary'][] = array('value' => $membership, 'type' => 'uri');
             }
         }
@@ -88,7 +88,7 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $stmt = array();
         foreach($metadataCollections as $collection){
-            if($collection['usedBy'] != null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+            if(($collection['usedBy'] != null && $collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') || ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes' && $collection['permittedForLibrary'] == $membership)) {
                 $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/metadataUsedByLibrary'][] = array('value' => $membership, 'type' => 'uri');
             }
         }
@@ -109,7 +109,7 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $stmt = array();
         foreach($metadataCollections as $collection){
-            if($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No'){
+            if(($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') || ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes' && $collection['permittedForLibrary'] == $membership)){
                 $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor'][] = array('value' => $membership, 'type' => 'uri');
             }
         }
@@ -130,7 +130,7 @@ class StatementsController extends OntoWiki_Controller_Component
 
         $stmt = array();
         foreach($metadataCollections as $collection) {
-            if ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') {
+            if (($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/No') || ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes' && $collection['permittedForLibrary'] == $membership)) {
                 $stmt[$collection['collection']]['http://vocab.ub.uni-leipzig.de/amsl/evaluateHoldingsFileFor'][] = array('value' => $membership, 'type' => 'uri');
             }
         }

@@ -190,7 +190,11 @@ class StatementsController extends OntoWiki_Controller_Component
         $params = $this->_request->getParams();
         $collection = $params['collection'];
         $source = $params['source'];
-
+        
+        if (empty($collection) || empty($source)) {
+            return;
+        }
+        
         $_owApp = OntoWiki::getInstance();
         $logger = $_owApp->getCustomLogger('statements');
         $logger->debug('StatementsController:savestatementAction: ' . $collection . ' --> ' . $source);
@@ -227,6 +231,10 @@ class StatementsController extends OntoWiki_Controller_Component
         $collection = $params['collection'];
         $source = $params['source'];
 
+        if (empty($collection) || empty($source)) {
+            return;
+        }
+        
         $_owApp = OntoWiki::getInstance();
         $logger = $_owApp->getCustomLogger('statements');
         $logger->debug('StatementsController:deletestatementAction: ' . $collection . ' --> ' . $source);

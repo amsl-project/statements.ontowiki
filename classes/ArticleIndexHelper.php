@@ -32,26 +32,26 @@ class ArticleIndexHelper
     {
         $_owApp = OntoWiki::getInstance();
         $lang = $_owApp->language;
-        $query = "SELECT ?source ?sourceID ?status ?statusID ?shard ?institution
-FROM <http://amsl.technology/discovery/>
-FROM <http://amsl.technology/discovery/metadata-usage/>
-FROM <http://amsl.technology/config/discovery/>
-FROM <http://vocab.ub.uni-leipzig.de/amsl/>
-FROM <http://lobid.org/>
+        $query = "PREFIX amsl: <http://vocab.ub.uni-leipzig.de/amsl/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/terms/>
+SELECT ?source ?sourceID ?status ?institution
 WHERE {
-?source a <http://vocab.ub.uni-leipzig.de/amsl/MetadataSource> .
-?source <http://vocab.ub.uni-leipzig.de/amsl/sourceID> ?sourceID .
+?source a amsl:MetadataSource .
+?source amsl:sourceID ?sourceID .
+?source amsl:metadataSourceImplStatus ?implStatus .
    OPTIONAL {
-      ?source <http://vocab.ub.uni-leipzig.de/amsl/metadataSourceImplStatus> ?statusID .
-      ?statusID <http://www.w3.org/2000/01/rdf-schema#label> ?status .
+      ?implStatus rdfs:label ?status .
       FILTER (lang(?status) = '" . $lang . "')
    }
    OPTIONAL {
-      ?source <http://vocab.ub.uni-leipzig.de/amsl/solrShard> ?shard .
-      ?shard <http://purl.org/dc/terms/creator> ?ignore .
-      ?ignore <http://www.w3.org/2000/01/rdf-schema#label> ?institution .
+      ?source amsl:solrShard / dc:creator / rdfs:label ?institution .
       FILTER (lang(?institution) = '" . $lang . "')
    }
+FILTER (
+  ?implStatus != amsl:Cancelled &&
+  ?implStatus != amsl:Impossible
+  )
 }";
 
         $sources = $this->_model->sparqlQuery($query);
@@ -94,69 +94,73 @@ WHERE {
         $membership = $_owApp->getUser()->getIsMemberOf();
         $checkedHoldingsFiles = $this->getIsHoldingsFilesCheckedArray($membership);
         foreach ($sources as $source) {
-            $statusID = $source['statusID'];
-            if($statusID != 'http://vocab.ub.uni-leipzig.de/amsl/Cancelled' && $statusID != 'http://vocab.ub.uni-leipzig.de/amsl/Impossible') {
-                $status = $source['status'];
-                if ($status != null && $status != '') {
-                    $status = "<span style='color: dimgray;'> - " . $status . " </span>";
-                }
-                if($source['institution'] == null || $source['institution'] == ""){
-                    $source['institution'] = $this->_translate->_("No supervising institution found!");
-                }
-                $checkThemAll = '<p class="asdfjka" style=" display:none;" >' . $source['source'] . '</p>';
-                $institution = '<p class="asdfjkb" style=" display:none;" >' . $source['institution'] . '</p>';
-
-                $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $status . $checkThemAll . $institution;
-                $resultArray['hideCheckbox'] = true;
-                $resultArray['folder'] = true;
-                $resultArray['sourceID'] = $source['sourceID'];
-                $resultArray['data'] = array("sourceUri" => $source['source']);
-                $collections = $this->queryMetadataCollections($source['source']);
-                if (isset($collections)) {
-                    usort($collections, array('ArticleIndexHelper', 'cmp'));
-                    foreach ($collections as $collection) {
-                        $selection = isset($collection['usedBy']);
-                        if (!isset($collection['isRestricted']) || $collection['isRestricted'] == '') {
-                            $enableCheckbox = false;
-                        } else {
-                            if ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes') {
-
-                                if (isset($collection['permittedForLibrary']) && $collection['permittedForLibrary'] == $membership) {
-                                    $enableCheckbox = true;
-                                } else {
-                                    $enableCheckbox = false;
-                                }
-                            } else {
-                                $enableCheckbox = true;
-                            }
-                        }
-
-                        $label = isset($collection['label']) ? $collection['label'] : $collection['collection'];
-                        $uri = $collection['collection'];
-                        $note = '';
-                        if (!$enableCheckbox) {
-                            $note .= '<br> <div id="statements-small-hint"> -> ' . $this->_translate->_('This collection is restricted. Please contact team finc for further information.') . ' team@finc.info</div>';
-
-                        } else {
-                            if (in_array($uri, $checkedHoldingsFiles)) {
-                                $checked = 'checked';
-                            } else {
-                                $checked = '';
-                            }
-                            $note .= '<div class="checkfile">' . $this->_translate->_('evaluate holdings file') . '&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . uniqid("aasdf") . '"></div>';
-                        }
-
-                        $labeldiv = '<div class="headline">' . $label . '</div>';
-                        $resultArray['children'][] = array(
-                            "title" => $labeldiv . $note,
-                            "selected" => $selection,
-                            "hideCheckbox" => !$enableCheckbox,
-                            "data" => array("collection" => $collection['collection']));
-                    }
-                }
-                $return[] = $resultArray;
-                $resultArray = array();
+            $status = $source['status'];
+            if ($status != null && $status != '') {
+                $status = "<span style='color: dimgray;'> - " . $status . " </span>";
             }
+            if ($source['institution'] == null || $source['institution'] == "") {
+                $source['institution'] = $this->_translate->_("No supervising institution found!");
+            }
+            $checkThemAll = '<p class="asdfjka" style=" display:none;" >' . $source['source'] . '</p>';
+            $institution = '<p class="asdfjkb" style=" display:none;" >' . $source['institution'] . '</p>';
+            
+            $resultArray['title'] = $source['sourceID'] . " - " . $titleHelper->getTitle($source['source']) . $status . $checkThemAll . $institution;
+            $resultArray['hideCheckbox'] = true;
+            $resultArray['folder'] = true;
+            $resultArray['sourceID'] = $source['sourceID'];
+            $resultArray['data'] = array(
+                "sourceUri" => $source['source']
+            );
+            $collections = $this->queryMetadataCollections($source['source']);
+            if (isset($collections)) {
+                usort($collections, array(
+                    'ArticleIndexHelper',
+                    'cmp'
+                ));
+                foreach ($collections as $collection) {
+                    $selection = isset($collection['usedBy']);
+                    if (! isset($collection['isRestricted']) || $collection['isRestricted'] == '') {
+                        $enableCheckbox = false;
+                    } else {
+                        if ($collection['isRestricted'] == 'http://vocab.ub.uni-leipzig.de/amsl/Yes') {
+                            
+                            if (isset($collection['permittedForLibrary']) && $collection['permittedForLibrary'] == $membership) {
+                                $enableCheckbox = true;
+                            } else {
+                                $enableCheckbox = false;
+                            }
+                        } else {
+                            $enableCheckbox = true;
+                        }
+                    }
+                    
+                    $label = isset($collection['label']) ? $collection['label'] : $collection['collection'];
+                    $uri = $collection['collection'];
+                    $note = '';
+                    if (! $enableCheckbox) {
+                        $note .= '<br> <div id="statements-small-hint"> -> ' . $this->_translate->_('This collection is restricted. Please contact team finc for further information.') . ' team@finc.info</div>';
+                    } else {
+                        if (in_array($uri, $checkedHoldingsFiles)) {
+                            $checked = 'checked';
+                        } else {
+                            $checked = '';
+                        }
+                        $note .= '<div class="checkfile">' . $this->_translate->_('evaluate holdings file') . '&nbsp; <input style="position:absolute; top: 2px; " type="checkbox" ' . $checked . ' name="abc" value="xyz" class="filecheckbox" id="' . uniqid("aasdf") . '"></div>';
+                    }
+                    
+                    $labeldiv = '<div class="headline">' . $label . '</div>';
+                    $resultArray['children'][] = array(
+                        "title" => $labeldiv . $note,
+                        "selected" => $selection,
+                        "hideCheckbox" => ! $enableCheckbox,
+                        "data" => array(
+                            "collection" => $collection['collection']
+                        )
+                    );
+                }
+            }
+            $return[] = $resultArray;
+            $resultArray = array();
         }
 
         // _naturally_ sort by source ID.

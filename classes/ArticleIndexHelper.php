@@ -190,16 +190,20 @@ FILTER (
             SELECT ?collection ?usedBy ?label ?isRestricted ?permittedForLibrary WHERE {
                 ?collection a amsl:MetadataCollection .
                 ?collection amsl:includedInMetadataSource <" . $metadataSource . "> .
-                ?collection rdfs:label ?label
+                ?collection rdfs:label ?label .
+                ?collection amsl:metadataAvailable ?metadata
             OPTIONAL {
-                ?collection amsl:metadataUsedByLibrary ?usedBy . FILTER (?usedBy = <" . $membership . ">)
+                ?collection amsl:metadataUsedByLibrary ?usedBy . 
+                FILTER (?usedBy = <" . $membership . ">)
             }
             OPTIONAL {
                 ?collection amsl:metadataUsageRestricted ?isRestricted .
             }
             OPTIONAL {
-                ?collection amsl:metadataUsagePermittedForLibrary ?permittedForLibrary . FILTER (?permittedForLibrary = <" . $membership . ">)
+                ?collection amsl:metadataUsagePermittedForLibrary ?permittedForLibrary . 
+                FILTER (?permittedForLibrary = <" . $membership . ">)
             }
+            FILTER (?metadata != amsl:No)
         }";
             $result = $this->_model->sparqlQuery($query);
             return $result;
